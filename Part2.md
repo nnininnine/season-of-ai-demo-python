@@ -6,7 +6,7 @@ Imagine asking your AI assistant, "Which engineers with frontend skills are avai
 
 That's the power of the Model Context Protocol (MCP). MCP servers act as secure bridges, giving AI assistants direct access to your internal systems - databases, APIs, file systems, and more.
 
-In this workshop, you'll build an MCP server for a project allocation system. While we're using JSON files for simplicity, the same patterns apply to any data source: SQL databases, REST APIs etc...
+In this workshop, you'll build a Python MCP server for a project allocation system. While we're using JSON files for simplicity, the same patterns apply to any data source: SQL databases, REST APIs, etc.
 
 ## Demo Video
 
@@ -15,10 +15,10 @@ In this workshop, you'll build an MCP server for a project allocation system. Wh
 ## Overview
 
 **What's already provided:**
-- `AllocationService` - Complete service with all business logic, validation and XML documentation
+- `AllocationService` - Complete service with all business logic and validation
 - `Allocation`, `Engineer`, and `Project` models
 - Sample data in JSON files
-- Basic tool implementations: `ListEngineersTool`, `ListProjectsTool`
+- Complete tool implementations: `list_engineers`, `list_projects`
 
 **What you'll build:**
 - Tools to get individual records by ID
@@ -30,19 +30,26 @@ In this workshop, you'll build an MCP server for a project allocation system. Wh
 
 ### Step 1: Understand the Existing Code
 
-1. **Review the models** in `ProjectAllocationManagerMCP/Models/`
+1. **Review the models** in `ProjectAllocationManagerMCP/models/`
 2. **Check the sample data** in `ProjectAllocationManagerMCP/data/`
-3. **Study the service** in `ProjectAllocationManagerMCP/Services/AllocationService.cs`
-   - Read the XML documentation on each method
+3. **Study the service** in `ProjectAllocationManagerMCP/service/allocation_service.py`
+   - Read the docstrings on each method
    - Understand the available methods you can use
-4. **Examine existing tools** in `ProjectAllocationManagerMCP/Tools/`
+4. **Examine existing tools** in `ProjectAllocationManagerMCP/project_mcp/mcp_tools.py`
 
-### Step 2: Build the project
+### Step 2: Install Dependencies
 
-Build the ProjectAllocationManagerMCP project to ensure everything compiles correctly:
+Install the required dependencies:
 
 ```bash
-dotnet build ProjectAllocationManagerMCP/ProjectAllocationManagerMCP.csproj
+cd ProjectAllocationManagerMCP
+uv sync
+```
+
+Or install manually:
+
+```bash
+uv add "mcp[cli]" httpx
 ```
 
 ### Step 3: Configure MCP Server
@@ -55,14 +62,14 @@ To use your MCP server with GitHub Copilot in VS Code, configure it in the MCP s
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "ProjectAllocationManagerMCP": {
-      "command": "dotnet",
+      "command": "${path to your uv}",
       "args": [
+        "--directory",
+        "./ProjectAllocationManagerMCP",
         "run",
-        "--project",
-        "ProjectAllocationManagerMCP/ProjectAllocationManagerMCP.csproj",
-        "--no-build"
+        "main.py"
       ]
     }
   }
@@ -71,42 +78,42 @@ To use your MCP server with GitHub Copilot in VS Code, configure it in the MCP s
 
 **What this does:**
 - Defines an MCP server named "ProjectAllocationManagerMCP"
-- Configures VS Code to run your server using `dotnet run`
+- Configures VS Code to run your server using `uv run`
 - Points to your ProjectAllocationManagerMCP project
-- Uses `--no-build` to skip rebuilding (since you already built in Step 2)
+- Runs the `main.py` entry point
 
 ### Step 4: Test Existing Tools
 
-Test the provided tools :
-- Try listing all engineers
-- Try listing all projects
+Test the provided tools:
+- Try listing all engineers: `list_engineers`
+- Try listing all projects: `list_projects`
 
 ## Exercise Time 🚀
 
 ### Task 1: Create tool to retrieve all allocations
-**Service method to use:** `GetAllocationsAsync()`
+**Service method to use:** `get_allocations_async(self)`
 
 ### Task 2: Create tool to retrieve engineers by id
-**Service method to use:** `GetEngineerByIdAsync(string id)`
+**Service method to use:** `get_engineer_by_id_async(self, id: str)`
 
 ### Task 3: Create tool to retrieve projects by id
-**Service method to use:** `GetProjectByIdAsync(string id)`
+**Service method to use:** `get_project_by_id_async(self, id: str)`
 
 ### Task 4: Create tool to retrieve allocations by id
-**Service method to use:** `GetAllocationByIdAsync(string id)`
+**Service method to use:** `get_allocation_by_id_async(self, id: str)`
 
 ### Task 5: Create tool to allocate an engineer
-**Service method to use:** `AllocateEngineerAsync(string engineerId, string projectId, int allocationPercentage, string? startDate = null, string? endDate = null)`
+**Service method to use:** `allocate_engineer_async`
 
 ### Task 6: Create tool to update allocation of an engineer
-**Service method to use:** `UpdateAllocationAsync(string allocationId, int? allocationPercentage = null, string? startDate = null, string? endDate = null)`
+**Service method to use:** `update_allocation_async`
 
 ### Task 7: Add Reference Data Resources
 
 Create resources that provide reference data to AI assistants:
 
 **File to create:**
-- `Resources/AllocationResources.cs`
+- `project_mcp/mcp_resources.py`
 
 **Resources to implement:**
 1. `allocation://engineers` - List all engineers with details
@@ -117,15 +124,27 @@ Create resources that provide reference data to AI assistants:
 Create prompts that guide users through common tasks:
 
 **File to create:**
-- `Prompts/AllocationPrompts.cs`
+- `project_mcp/mcp_prompts.py`
 
-**Prompts to implement:**
-1. **AllocateEngineerPrompt** - Guide users to allocate an engineer accepting name, project and start and end date
-2. **MoveEngineerToBenchPrompt** - Guide users to move an engineer to the bench (unallocate from current projects)
+## Running the Server
+
+To test your MCP server locally:
+
+```bash
+cd ProjectAllocationManagerMCP
+uv run main.py
+```
+
+Or using the MCP Inspector for a web-based UI:
+
+```bash
+cd ProjectAllocationManagerMCP
+uv run mcp dev main.py
+```
 
 ## Summary
 
 By the end of this workshop, you'll have built:
-- **6 Tools** for querying and updating allocations
+- **6 Tools** for querying and updating allocations (pre-built)
 - **2 Resources** providing reference data
 - **2 Prompts** guiding common workflows
