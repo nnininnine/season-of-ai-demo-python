@@ -38,79 +38,26 @@ Instructions: {props.get('instruction', 'No specific instructions provided')}
 
 @mcp.tool()
 async def get_alerts(state: str) -> str:
-    """Get weather alerts for a US state.
-
-    Args:
-        state: Two-letter US state code (e.g. CA, NY)
-    """
-    url = f"{NWS_API_BASE}/alerts/active/area/{state}"
-    data = await make_nws_request(url)
-
-    if not data or "features" not in data:
-        return "Unable to fetch alerts or no alerts found."
-
-    if not data["features"]:
-        return "No active alerts for this state."
-
-    alerts = [format_alert(feature) for feature in data["features"]]
-    return "\n---\n".join(alerts)
+    # Add tool that return weather alerts for a US state
+    return ""
 
 
 @mcp.tool()
 async def get_forecast(latitude: float, longitude: float) -> str:
-    """Get weather forecast for a location.
-
-    Args:
-        latitude: Latitude of the location
-        longitude: Longitude of the location
-    """
-    # First get the forecast grid endpoint
-    points_url = f"{NWS_API_BASE}/points/{latitude},{longitude}"
-    points_data = await make_nws_request(points_url)
-
-    if not points_data:
-        return "Unable to fetch forecast data for this location."
-
-    # Get the forecast URL from the points response
-    forecast_url = points_data["properties"]["forecast"]
-    forecast_data = await make_nws_request(forecast_url)
-
-    if not forecast_data:
-        return "Unable to fetch detailed forecast."
-
-    # Format the periods into a readable forecast
-    periods = forecast_data["properties"]["periods"]
-    forecasts = []
-    for period in periods[:5]:  # Only show next 5 periods
-        forecast = f"""
-{period['name']}:
-Temperature: {period['temperature']}°{period['temperatureUnit']}
-Wind: {period['windSpeed']} {period['windDirection']}
-Forecast: {period['detailedForecast']}
-"""
-        forecasts.append(forecast)
-
-    return "\n---\n".join(forecasts)
+    # Add tool that return weather forecast for a location 
+    return ""
 
 
 @mcp.prompt(title="New York Weather")
 def new_york_weather() -> str:
-    """
-    Get weather forecast and alerts for New York City
-    """
-    return """
-Get the weather forecast for New York City (latitude: 40.7128, longitude: -74.0060) and check for any weather alerts in New York state.
-"""
+    # Add prompt that gets weather forecast and alerts for New York
+    return ""
 
 
 @mcp.prompt(title="Los Angeles Weather")
 def los_angeles_weather() -> str:
-    """
-    Get weather forecast and alerts for Los Angeles
-    """
-    return """
-Get the weather forecast for Los Angeles (latitude: 34.0522, longitude: -118.2437) and check for any weather alerts in California.
-"""
+    # Add prompt that gets weather forecast and alerts for Los Angeles
+    return ""
 
 
 @mcp.resource(
@@ -118,18 +65,8 @@ Get the weather forecast for Los Angeles (latitude: 34.0522, longitude: -118.243
     description="List of US state codes and names for weather alerts",
 )
 def get_state_codes_resource() -> str:
-    """Return JSON describing US state codes usable by the GetAlerts tool."""
-    return json.dumps(
-        {
-            "description": "US State codes for use with GetAlerts tool",
-            "states": [
-                {"code": "AL", "name": "Alabama"},
-                {"code": "AK", "name": "Alaska"},
-                {"code": "CA", "name": "California"},
-                {"code": "NY", "name": "New York"},
-            ],
-        }
-    )
+    # Add resource that return JSON with US state codes and names
+    return ""
 
 
 @mcp.resource(
@@ -137,22 +74,8 @@ def get_state_codes_resource() -> str:
     description="Coordinates for major US cities to use with weather forecast",
 )
 def get_major_cities_resource() -> str:
-    """Return JSON with coordinates for a few major US cities."""
-    return json.dumps(
-        {
-            "description": "Pre-defined coordinates for major US cities",
-            "cities": [
-                {"name": "New York, NY", "latitude": 40.7128, "longitude": -74.0060},
-                {
-                    "name": "Los Angeles, CA",
-                    "latitude": 34.0522,
-                    "longitude": -118.2437,
-                },
-                {"name": "Chicago, IL", "latitude": 41.8781, "longitude": -87.6298},
-                {"name": "Houston, TX", "latitude": 29.7604, "longitude": -95.3698},
-            ],
-        }
-    )
+    # Add resource that return JSON with major US cities and their coordinates
+    return ""
 
 
 def main():
